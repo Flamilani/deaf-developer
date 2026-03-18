@@ -1,67 +1,464 @@
-<div class="course-panel-container">
-  <!-- Main Content: Video and Lesson Info -->
-  <main class="main-content">
-    <header class="course-header">
-      <h1 class="course-title">{{ courseTitle() }}</h1>
-      <div class="lesson-meta">
-        <span class="badge">{{ selectedLesson().duration }}</span>
-        <span class="badge" [class.completed]="selectedLesson().completed">
-          {{ selectedLesson().completed ? 'Concluído' : 'Em andamento' }}
-        </span>
+@if (course()) {
+
+  <!-- ================================================
+       VIEW: INTRO PAGE (no ?aula= param)
+       ================================================ -->
+  @if (viewMode() === 'intro') {
+  <div class="intro-page">
+
+    <!-- Hero Banner -->
+    <section class="intro-hero">
+      <div class="intro-hero-bg" aria-hidden="true">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
       </div>
-    </header>
+      <div class="intro-hero-grid">
 
-    <div class="video-container">
-      <div class="video-placeholder">
-        <span class="play-icon">▶</span>
-        <p>Vídeo Aula: {{ selectedLesson().title }}</p>
-      </div>
-    </div>
+        <!-- LEFT: Course Info -->
+        <div class="intro-hero-info">
+          <a routerLink="/cursos" class="back-link">← Voltar aos cursos</a>
 
-    <section class="lesson-details">
-      <h2>{{ selectedLesson().title }}</h2>
-      <p class="description">
-        Nesta aula, exploramos conceitos fundamentais adaptados para uma experiência visual em Libras.
-      </p>
-    </section>
-  </main>
+          <div class="intro-badge-row">
+            <span class="intro-badge badge-level">{{ course()!.level }}</span>
+            <span class="intro-badge badge-category">{{ course()!.category }}</span>
+            <span class="intro-badge badge-price" [class.free]="course()!.price === 'Grátis'">
+              {{ course()!.price }}
+            </span>
+            <span class="intro-badge badge-libras">🤟 LIBRAS</span>
+          </div>
 
-  <!-- Sidebar: Curriculum -->
-  <aside class="curriculum-sidebar">
-    <div class="sidebar-header">
-      <h2>Conteúdo Programático</h2>
-      <p class="progress-info">4 aulas • 36min</p>
-    </div>
+          <h1 class="intro-title">{{ course()!.title }}</h1>
+          <p class="intro-subtitle">{{ course()!.description }}</p>
 
-    <div class="modules-list">
-      @for (module of modules(); track module.id) {
-        <div class="module-item" [class.active]="module.isOpen">
-          <button class="module-header" (click)="toggleModule(module)">
-            <span class="chevron" [class.rotated]="module.isOpen">❯</span>
-            <span class="module-title">{{ module.title }}</span>
-          </button>
-          
-          <div class="lessons-list" *ngIf="module.isOpen">
-            @for (lesson of module.lessons; track lesson.id) {
-              <button 
-                class="lesson-item" 
-                [class.selected]="selectedLesson().id === lesson.id"
-                (click)="selectLesson(lesson)"
-              >
-                <div class="lesson-status">
-                  <span class="status-icon" [class.check]="lesson.completed">
-                    {{ lesson.completed ? '✓' : '○' }}
-                  </span>
+          <!-- Stats Row -->
+          <div class="intro-stats">
+            <div class="intro-stat">
+              <span class="stat-value">{{ course()!.totalWorkload }}</span>
+              <span class="stat-label">Carga horária</span>
+            </div>
+            <div class="intro-stat-divider" aria-hidden="true"></div>
+            <div class="intro-stat">
+              <span class="stat-value">{{ totalLessons() }}</span>
+              <span class="stat-label">Aulas</span>
+            </div>
+            <div class="intro-stat-divider" aria-hidden="true"></div>
+            <div class="intro-stat">
+              <span class="stat-value">{{ modules().length }}</span>
+              <span class="stat-label">Módulos</span>
+            </div>
+            <div class="intro-stat-divider" aria-hidden="true"></div>
+            <div class="intro-stat">
+              <span class="stat-value">{{ course()!.professors.length }}</span>
+              <span class="stat-label">Professores</span>
+            </div>
+          </div>
+
+          <!-- Professors -->
+          <div class="intro-professors">
+            @for (prof of course()!.professors; track prof) {
+              <div class="intro-prof-chip">
+                <div class="intro-prof-avatar" aria-hidden="true">
+                  {{ prof.split(' ').pop()?.charAt(0) }}
                 </div>
-                <div class="lesson-info">
-                  <span class="lesson-title">{{ lesson.title }}</span>
-                  <span class="lesson-duration">{{ lesson.duration }}</span>
-                </div>
+                <span>{{ prof }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Progress (if started) -->
+          @if (totalCompleted() > 0) {
+            <div class="intro-progress-block">
+              <div class="intro-progress-header">
+                <span>Progresso do curso</span>
+                <span class="intro-progress-pct">{{ progressPercent() }}% concluído</span>
+              </div>
+              <div class="intro-progress-bar" role="progressbar"
+                   [attr.aria-valuenow]="progressPercent()"
+                   aria-valuemin="0" aria-valuemax="100">
+                <div class="intro-progress-fill" [style.width.%]="progressPercent()"></div>
+              </div>
+            </div>
+          }
+
+          <!-- CTA -->
+          <div class="intro-cta-row">
+            <button class="cta-primary" type="button" (click)="startCourse()">
+              @if (totalCompleted() === 0) {
+                ▶ Iniciar Curso
+              } @else {
+                ▶ Continuar de onde parei
+              }
+            </button>
+            @if (totalCompleted() > 0) {
+              <button class="cta-secondary" type="button" (click)="selectLesson(modules()[0].lessons[0])">
+                Recomeçar do início
               </button>
             }
           </div>
         </div>
+
+        <!-- RIGHT: Intro Video Card -->
+        <div class="intro-video-card" aria-label="Vídeo de apresentação do curso">
+          <div class="intro-video-wrapper">
+            @if (course()!.introVideoUrl && videoPlaying()) {
+              <iframe
+                class="intro-video-iframe"
+                [src]="safeVideoUrl()"
+                title="Vídeo de introdução ao curso"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            } @else {
+              <div class="intro-video-thumb"
+                   (click)="course()!.introVideoUrl ? toggleIntroVideo() : startCourse()"
+                   role="button"
+                   tabindex="0"
+                   [attr.aria-label]="course()!.introVideoUrl ? 'Assistir vídeo de introdução' : 'Iniciar primeira aula'"
+                   (keydown.enter)="course()!.introVideoUrl ? toggleIntroVideo() : startCourse()">
+                <div class="thumb-bg" aria-hidden="true">
+                  <div class="thumb-icon">{{ course()!.icon }}</div>
+                  <div class="thumb-glow"></div>
+                </div>
+                <div class="intro-video-overlay">
+                  <div class="intro-play-btn" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                  <div class="intro-video-label">
+                    @if (course()!.introVideoUrl) {
+                      <span class="video-tag">Prévia do curso</span>
+                      <span class="video-duration">Vídeo de introdução</span>
+                    } @else {
+                      <span class="video-tag">Iniciar Curso</span>
+                      <span class="video-duration">{{ totalLessons() }} aulas · {{ course()!.totalWorkload }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+<!--           <div class="intro-video-meta">
+            <span class="vmeta-pill">🤟 Em LIBRAS</span>
+            <span class="vmeta-pill">📚 {{ course()!.level }}</span>
+            <span class="vmeta-pill" [class.vmeta-free]="course()!.price === 'Grátis'" [class.vmeta-premium]="course()!.price !== 'Grátis'">
+              {{ course()!.price }}
+            </span>
+          </div> -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Intro Tabs -->
+    <div class="intro-body">
+      <nav class="intro-tabs" role="tablist" aria-label="Seções de apresentação">
+        <button class="intro-tab-btn" role="tab"
+          [class.active]="introTab() === 'sobre'"
+          [attr.aria-selected]="introTab() === 'sobre'"
+          (click)="setIntroTab('sobre')">Sobre o Curso</button>
+        <button class="intro-tab-btn" role="tab"
+          [class.active]="introTab() === 'objetivos'"
+          [attr.aria-selected]="introTab() === 'objetivos'"
+          (click)="setIntroTab('objetivos')">Objetivos</button>
+        <button class="intro-tab-btn" role="tab"
+          [class.active]="introTab() === 'metodologia'"
+          [attr.aria-selected]="introTab() === 'metodologia'"
+          (click)="setIntroTab('metodologia')">Metodologia</button>
+        <button class="intro-tab-btn" role="tab"
+          [class.active]="introTab() === 'modulos'"
+          [attr.aria-selected]="introTab() === 'modulos'"
+          (click)="setIntroTab('modulos')">Módulos</button>
+      </nav>
+
+      <!-- TAB: Sobre -->
+      @if (introTab() === 'sobre') {
+        <section class="intro-tab-content" aria-label="Sobre o curso">
+          <div class="intro-two-col">
+            <div class="intro-col-main">
+              <h2 class="intro-section-h2">Objetivo Geral</h2>
+              <p class="intro-text">{{ course()!.generalObjective }}</p>
+
+              <div class="intro-divider"></div>
+
+              <h2 class="intro-section-h2">Inclusão e Acessibilidade</h2>
+              <p class="intro-text">{{ course()!.inclusion }}</p>
+
+              <div class="intro-divider"></div>
+
+              <h2 class="intro-section-h2">Considerações Finais</h2>
+              <p class="intro-text">{{ course()!.finalConsiderations }}</p>
+            </div>
+
+            <aside class="intro-col-side">
+              <div class="side-card">
+                <h3 class="side-card-title">Resultados Esperados</h3>
+                <ul class="side-list">
+                  @for (result of course()!.expectedResults; track result) {
+                    <li>{{ result }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="side-card">
+                <h3 class="side-card-title">Recursos Utilizados</h3>
+                <ul class="side-list side-list-resources">
+                  @for (r of course()!.resources; track r) {
+                    <li>{{ r }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="side-card">
+                <h3 class="side-card-title">Avaliação</h3>
+                <ul class="side-list">
+                  @for (c of course()!.evaluationCriteria; track c) {
+                    <li>{{ c }}</li>
+                  }
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </section>
       }
+
+      <!-- TAB: Objetivos -->
+      @if (introTab() === 'objetivos') {
+        <section class="intro-tab-content" aria-label="Objetivos do curso">
+          <h2 class="intro-section-h2">Objetivos Específicos</h2>
+          <p class="intro-text-lead">
+            Ao final do curso, o aluno terá desenvolvido as seguintes competências:
+          </p>
+          <ol class="objectives-grid">
+            @for (obj of course()!.specificObjectives; track obj; let i = $index) {
+              <li class="objective-card">
+                <span class="objective-num">{{ i + 1 }}</span>
+                <p>{{ obj }}</p>
+              </li>
+            }
+          </ol>
+        </section>
+      }
+
+      <!-- TAB: Metodologia -->
+      @if (introTab() === 'metodologia') {
+        <section class="intro-tab-content" aria-label="Metodologia do curso">
+          <div class="intro-two-col">
+            <div class="intro-col-main">
+              <h2 class="intro-section-h2">Metodologia</h2>
+              <p class="intro-text">{{ course()!.methodology }}</p>
+            </div>
+            <aside class="intro-col-side">
+              <div class="side-card">
+                <h3 class="side-card-title">Plano de Curso (60h)</h3>
+                <div class="plan-list">
+                  @for (m of modules(); track m.id) {
+                    <div class="plan-item">
+                      <span class="plan-m">M{{ m.id }}</span>
+                      <div class="plan-info">
+                        <span class="plan-title">{{ m.title }}</span>
+                        <span class="plan-meta">{{ m.workload }} · {{ m.professor }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+      }
+
+      <!-- TAB: Módulos -->
+      @if (introTab() === 'modulos') {
+        <section class="intro-tab-content" aria-label="Módulos do curso">
+          <h2 class="intro-section-h2">Conteúdo Programático</h2>
+          <p class="intro-text-lead">{{ modules().length }} módulos · {{ totalLessons() }} aulas · {{ course()!.totalWorkload }}</p>
+          <div class="modules-overview">
+            @for (module of modules(); track module.id) {
+              <div class="module-card">
+                <div class="module-card-header">
+                  <div class="module-card-num">M{{ module.id }}</div>
+                  <div class="module-card-info">
+                    <h3 class="module-card-title">{{ module.title }}</h3>
+                    <p class="module-card-meta">{{ module.workload }} · {{ module.professor }}</p>
+                  </div>
+                  <span class="module-card-count">{{ module.lessons.length }} aulas</span>
+                </div>
+                <ul class="module-lesson-list">
+                  @for (lesson of module.lessons; track lesson.id) {
+                    <li>
+                      <button class="module-lesson-btn" type="button" (click)="selectLesson(lesson)">
+                        <span class="lesson-dot" aria-hidden="true">○</span>
+                        <span class="lesson-name">{{ lesson.title }}</span>
+                        <span class="lesson-dur">{{ lesson.duration }}</span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Bottom CTA -->
+      <div class="intro-bottom-cta">
+        <button class="cta-primary cta-large" type="button" (click)="startCourse()">
+          @if (totalCompleted() === 0) {
+            ▶ Iniciar Curso Agora
+          } @else {
+            ▶ Continuar Curso
+          }
+        </button>
+      </div>
     </div>
-  </aside>
-</div>
+  </div>
+  }
+
+  <!-- ================================================
+       VIEW: LESSON PLAYER (with ?aula= param)
+       ================================================ -->
+  @if (viewMode() === 'lesson') {
+  <div class="course-panel-container">
+
+    <!-- SIDEBAR -->
+    <aside class="curriculum-sidebar" aria-label="Conteúdo programático">
+      <div class="sidebar-header">
+        <button class="back-link" type="button" (click)="goToIntro()">
+          ← Apresentação do curso
+        </button>
+        <h2 class="sidebar-course-title">{{ course()!.title }}</h2>
+
+        <div class="progress-block" aria-label="Progresso do curso">
+          <div class="progress-numbers">
+            <span>{{ totalCompleted() }}/{{ totalLessons() }} aulas</span>
+            <span class="progress-pct">{{ progressPercent() }}%</span>
+          </div>
+          <div class="progress-bar" role="progressbar"
+               [attr.aria-valuenow]="progressPercent()"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+          <p class="workload-info">Carga horária: <strong>{{ course()!.totalWorkload }}</strong></p>
+        </div>
+
+        <div class="professors-block">
+          <p class="professors-label">Professores</p>
+          @for (prof of course()!.professors; track prof) {
+            <span class="professor-chip">{{ prof }}</span>
+          }
+        </div>
+      </div>
+
+      <nav class="modules-list" aria-label="Módulos do curso">
+        @for (module of modules(); track module.id) {
+          <div class="module-item" [class.active]="module.isOpen">
+            <button class="module-header"
+              [attr.aria-expanded]="module.isOpen"
+              (click)="toggleModule(module.id)">
+              <span class="chevron" [class.rotated]="module.isOpen" aria-hidden="true">❯</span>
+              <div class="module-header-info">
+                <span class="module-title">{{ module.title }}</span>
+                <span class="module-meta">{{ module.workload }} · {{ module.professor }}</span>
+              </div>
+            </button>
+
+            @if (module.isOpen) {
+              <div class="lessons-list">
+                @for (lesson of module.lessons; track lesson.id) {
+                  <button class="lesson-item"
+                    [class.selected]="selectedLesson()?.id === lesson.id"
+                    [class.completed]="lesson.completed"
+                    (click)="selectLesson(lesson)"
+                    [attr.aria-current]="selectedLesson()?.id === lesson.id ? 'true' : null">
+                    <span class="status-icon" [class.check]="lesson.completed" aria-hidden="true">
+                      {{ lesson.completed ? '✓' : '○' }}
+                    </span>
+                    <div class="lesson-info">
+                      <span class="lesson-title">{{ lesson.title }}</span>
+                      <span class="lesson-duration">{{ lesson.duration }}</span>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- Video Section -->
+      <section class="video-section" aria-label="Player de vídeo">
+        <div class="video-container">
+          <div class="video-placeholder">
+            <div class="play-btn" aria-label="Reproduzir aula">
+              <span class="play-icon" aria-hidden="true">▶</span>
+            </div>
+            <p>{{ selectedLesson()?.title }}</p>
+            <span class="libras-badge">🤟 Suporte em LIBRAS</span>
+          </div>
+        </div>
+
+        <div class="lesson-meta-bar">
+          <div class="lesson-meta-info">
+            <span class="badge" aria-label="Duração">⏱ {{ selectedLesson()?.duration }}</span>
+            <span class="badge"
+              [class.badge-completed]="selectedLesson()?.completed"
+              [attr.aria-label]="selectedLesson()?.completed ? 'Aula concluída' : 'Em andamento'">
+              {{ selectedLesson()?.completed ? '✓ Concluído' : '● Em andamento' }}
+            </span>
+          </div>
+          @if (!selectedLesson()?.completed) {
+            <button class="btn-complete" type="button" (click)="markCompleted()">
+              Marcar como concluída
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Lesson Details -->
+      <section class="tab-content" aria-label="Sobre a aula">
+        <h2 class="lesson-heading">{{ selectedLesson()?.title }}</h2>
+        <p class="lesson-description">
+          {{ selectedLesson()?.description ?? 'Nesta aula, exploramos conceitos fundamentais adaptados para uma experiência visual em Libras.' }}
+        </p>
+
+        <div class="info-cards-grid">
+          <div class="info-card">
+            <span class="info-card-icon" aria-hidden="true">📚</span>
+            <div>
+              <p class="info-card-label">Nível</p>
+              <p class="info-card-value">{{ course()!.level }}</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="info-card-icon" aria-hidden="true">⏳</span>
+            <div>
+              <p class="info-card-label">Carga Horária</p>
+              <p class="info-card-value">{{ course()!.totalWorkload }}</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="info-card-icon" aria-hidden="true">🎓</span>
+            <div>
+              <p class="info-card-label">Categoria</p>
+              <p class="info-card-value">{{ course()!.category }}</p>
+            </div>
+          </div>
+          <div class="info-card">
+            <span class="info-card-icon" aria-hidden="true">🤟</span>
+            <div>
+              <p class="info-card-label">Acessibilidade</p>
+              <p class="info-card-value">Suporte em LIBRAS</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  }
+}
