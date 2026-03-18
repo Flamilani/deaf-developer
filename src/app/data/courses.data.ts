@@ -8,6 +8,19 @@ export interface Lesson {
   description?: string;
 }
 
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  alternatives: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface Quiz {
+  title: string;
+  questions: QuizQuestion[];
+}
+
 export interface CourseModule {
   id: number;
   title: string;
@@ -15,6 +28,7 @@ export interface CourseModule {
   professor: string;
   lessons: Lesson[];
   isOpen: boolean;
+  quiz?: Quiz;
 }
 
 export interface CourseData {
@@ -163,6 +177,63 @@ export const LOGICA_PROGRAMACAO_LIBRAS: CourseData = {
             'Exercícios de raciocínio lógico e criação de algoritmos, como o de fazer um sanduíche.',
         },
       ],
+      quiz: {
+        title: 'Quiz – Módulo 1: Introdução à Lógica de Programação',
+        questions: [
+          {
+            id: 1,
+            question: 'O que é um algoritmo?',
+            alternatives: [
+              'Um programa de computador pronto para execução',
+              'Uma sequência finita de passos lógicos para solucionar um problema',
+              'Uma linguagem de programação específica',
+              'Um tipo de dado numérico',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Um algoritmo é uma sequência finita de instruções bem definidas para resolver um problema ou realizar uma tarefa.',
+          },
+          {
+            id: 2,
+            question: 'Qual das opções abaixo é um exemplo de algoritmo no cotidiano?',
+            alternatives: [
+              'O número 42',
+              'Uma receita de bolo com passo a passo',
+              'Uma imagem colorida',
+              'Um endereço de e-mail',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Uma receita de bolo é um ótimo exemplo de algoritmo: é uma sequência de passos ordenados que levam a um resultado esperado.',
+          },
+          {
+            id: 3,
+            question: 'Pensamento Computacional envolve principalmente:',
+            alternatives: [
+              'Memorizar comandos de uma linguagem de programação',
+              'Utilizar apenas computadores modernos',
+              'Desenvolver raciocínio lógico e estruturado para resolver problemas',
+              'Digitar código rapidamente',
+            ],
+            correctIndex: 2,
+            explanation:
+              'O Pensamento Computacional é a capacidade de decompor problemas complexos, identificar padrões e desenvolver soluções estruturadas, independente de tecnologia.',
+          },
+          {
+            id: 4,
+            question: 'Qual é a estrutura básica de um algoritmo?',
+            alternatives: [
+              'Login, processamento e logout',
+              'Entrada, processamento e saída',
+              'Início, meio e instrução',
+              'Variável, operador e resultado',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Todo algoritmo segue a estrutura: Entrada (recebe dados), Processamento (transforma os dados) e Saída (apresenta o resultado).',
+          },
+        ],
+      },
     },
     {
       id: 2,
@@ -217,6 +288,63 @@ export const LOGICA_PROGRAMACAO_LIBRAS: CourseData = {
             'Exercício de criação de fluxogramas e sua conversão para pseudocódigo.',
         },
       ],
+      quiz: {
+        title: 'Quiz – Módulo 2: Representação de Algoritmos',
+        questions: [
+          {
+            id: 1,
+            question: 'O que é pseudocódigo?',
+            alternatives: [
+              'Um código executável em qualquer linguagem',
+              'Uma linguagem de programação visual',
+              'Uma forma de descrever algoritmos usando linguagem informal próxima do português',
+              'Um diagrama gráfico de fluxo',
+            ],
+            correctIndex: 2,
+            explanation:
+              'Pseudocódigo é uma notação informal que mistura linguagem natural com estruturas de programação, facilitando o planejamento antes de codificar.',
+          },
+          {
+            id: 2,
+            question: 'Qual símbolo de fluxograma representa uma DECISÃO (condição)?',
+            alternatives: [
+              'Retângulo',
+              'Losango',
+              'Oval/Elipse',
+              'Seta',
+            ],
+            correctIndex: 1,
+            explanation:
+              'O losango (diamante) é o símbolo padrão para decisões em fluxogramas, indicando uma condição com dois caminhos: Sim ou Não.',
+          },
+          {
+            id: 3,
+            question: 'Para que serve a Linguagem Natural Estruturada na representação de algoritmos?',
+            alternatives: [
+              'Executar programas diretamente no hardware',
+              'Expressar algoritmos usando a linguagem do dia a dia de forma organizada',
+              'Criar gráficos e tabelas de dados',
+              'Compilar código em linguagem de máquina',
+            ],
+            correctIndex: 1,
+            explanation:
+              'A Linguagem Natural Estruturada permite descrever algoritmos com palavras do cotidiano, mas com organização lógica, tornando o algoritmo compreensível para qualquer pessoa.',
+          },
+          {
+            id: 4,
+            question: 'Qual símbolo de fluxograma representa o INÍCIO ou FIM do algoritmo?',
+            alternatives: [
+              'Losango',
+              'Retângulo',
+              'Oval/Elipse (Terminal)',
+              'Paralelogramo',
+            ],
+            correctIndex: 2,
+            explanation:
+              'O oval (ou terminal) é usado para marcar o início e o fim de um fluxograma, delimitando os limites do algoritmo.',
+          },
+        ],
+      },
     },
     {
       id: 3,
@@ -288,6 +416,63 @@ export const LOGICA_PROGRAMACAO_LIBRAS: CourseData = {
             'Exercícios de leitura e escrita de dados com diferentes tipos de variáveis.',
         },
       ],
+      quiz: {
+        title: 'Quiz – Módulo 3: Variáveis e Tipos de Dados',
+        questions: [
+          {
+            id: 1,
+            question: 'O que é uma variável em programação?',
+            alternatives: [
+              'Um resultado fixo de um cálculo',
+              'Um espaço na memória que armazena um valor que pode ser alterado',
+              'Um comando para imprimir dados na tela',
+              'Uma função matemática',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Uma variável é um espaço reservado na memória do computador que possui um nome e armazena um valor que pode mudar durante a execução do programa.',
+          },
+          {
+            id: 2,
+            question: 'Qual tipo de dado armazena valores como verdadeiro ou falso?',
+            alternatives: [
+              'Inteiro',
+              'Real',
+              'String (Texto)',
+              'Booleano (Lógico)',
+            ],
+            correctIndex: 3,
+            explanation:
+              'O tipo Booleano (ou Lógico) armazena apenas dois valores possíveis: verdadeiro (true) ou falso (false), sendo essencial para estruturas de decisão.',
+          },
+          {
+            id: 3,
+            question: 'Qual tipo de dado seria mais adequado para armazenar o nome de uma pessoa?',
+            alternatives: [
+              'Inteiro',
+              'Real (Float)',
+              'String (Texto)',
+              'Booleano',
+            ],
+            correctIndex: 2,
+            explanation:
+              'O tipo String armazena sequências de caracteres (letras, números e símbolos), sendo o mais adequado para armazenar textos como nomes.',
+          },
+          {
+            id: 4,
+            question: 'Qual tipo de dado representa o número 3.14 (pi)?',
+            alternatives: [
+              'Inteiro',
+              'Real (Float/Double)',
+              'Booleano',
+              'String',
+            ],
+            correctIndex: 1,
+            explanation:
+              'O tipo Real (ou Float/Double) armazena números com parte decimal, como 3.14 (pi) ou 2.71828 (número de Euler).',
+          },
+        ],
+      },
     },
     {
       id: 4,
@@ -405,6 +590,63 @@ export const LOGICA_PROGRAMACAO_LIBRAS: CourseData = {
             'Crie um algoritmo para verificar aprovação ou reprovação com base na média.',
         },
       ],
+      quiz: {
+        title: 'Quiz – Módulo 5: Estruturas Condicionais',
+        questions: [
+          {
+            id: 1,
+            question: 'A estrutura SE (if) executa o bloco de código quando:',
+            alternatives: [
+              'A condição é falsa',
+              'Sempre, independente da condição',
+              'A condição é verdadeira',
+              'O programa é encerrado',
+            ],
+            correctIndex: 2,
+            explanation:
+              'A estrutura SE (if) verifica uma condição e só executa o bloco de código interno quando essa condição for verdadeira.',
+          },
+          {
+            id: 2,
+            question: 'Qual estrutura usar para tratar MÚLTIPLOS valores possíveis de uma variável de forma organizada?',
+            alternatives: [
+              'Estrutura SE simples (if)',
+              'Laço ENQUANTO (while)',
+              'Estrutura de Múltipla Escolha (switch/case)',
+              'Estrutura PARA (for)',
+            ],
+            correctIndex: 2,
+            explanation:
+              'O switch/case é ideal para avaliar múltiplos valores possíveis de uma variável, tornando o código mais legível do que vários if/else encadeados.',
+          },
+          {
+            id: 3,
+            question: 'No algoritmo "SE nota >= 7 ENTÃO aprovado SENÃO reprovado", o que acontece se nota = 5?',
+            alternatives: [
+              'Executa o bloco "aprovado"',
+              'Executa o bloco "reprovado"',
+              'Não executa nenhum bloco',
+              'Gera um erro',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Como 5 não é maior ou igual a 7, a condição é falsa e o bloco SENÃO (else) é executado, resultando em "reprovado".',
+          },
+          {
+            id: 4,
+            question: 'A estrutura SE...SENÃO (if/else) serve para:',
+            alternatives: [
+              'Repetir um bloco várias vezes',
+              'Definir uma ação alternativa quando a condição principal não é atendida',
+              'Declarar variáveis',
+              'Criar funções reutilizáveis',
+            ],
+            correctIndex: 1,
+            explanation:
+              'O SE...SENÃO (if/else) permite definir dois caminhos: um para quando a condição é verdadeira e outro (o SENÃO) para quando é falsa.',
+          },
+        ],
+      },
     },
     {
       id: 6,

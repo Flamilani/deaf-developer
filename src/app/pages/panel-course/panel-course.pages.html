@@ -380,6 +380,20 @@
                     </div>
                   </button>
                 }
+                @if (module.quiz) {
+                  <button class="lesson-item quiz-trigger-btn"
+                    [class.selected]="activeQuizModuleId() === module.id"
+                    type="button"
+                    (click)="openQuiz(module.id)"
+                    [attr.aria-pressed]="activeQuizModuleId() === module.id"
+                    aria-label="Abrir quiz do módulo {{ module.title }}">
+                    <span class="status-icon quiz-status-icon" aria-hidden="true">🧩</span>
+                    <div class="lesson-info">
+                      <span class="lesson-title">Quiz do Módulo</span>
+                      <span class="lesson-duration">{{ module.quiz.questions.length }} questões</span>
+                    </div>
+                  </button>
+                }
               </div>
             }
           </div>
@@ -390,73 +404,87 @@
     <!-- MAIN -->
     <main class="main-content">
 
-      <!-- Video Section -->
-      <section class="video-section" aria-label="Player de vídeo">
-        <div class="video-container">
-          <div class="video-placeholder">
-            <div class="play-btn" aria-label="Reproduzir aula">
-              <span class="play-icon" aria-hidden="true">▶</span>
+      @if (!activeModuleQuiz()) {
+        <div class="lesson-fade-in">
+          <!-- Video Section -->
+          <section class="video-section" aria-label="Player de vídeo">
+            <div class="video-container">
+              <div class="video-placeholder">
+                <div class="play-btn" aria-label="Reproduzir aula">
+                  <span class="play-icon" aria-hidden="true">▶</span>
+                </div>
+                <p>{{ selectedLesson()?.title }}</p>
+                <span class="libras-badge">🤟 Suporte em LIBRAS</span>
+              </div>
             </div>
-            <p>{{ selectedLesson()?.title }}</p>
-            <span class="libras-badge">🤟 Suporte em LIBRAS</span>
-          </div>
-        </div>
 
-        <div class="lesson-meta-bar">
-          <div class="lesson-meta-info">
-            <span class="badge" aria-label="Duração">⏱ {{ selectedLesson()?.duration }}</span>
-            <span class="badge"
-              [class.badge-completed]="selectedLesson()?.completed"
-              [attr.aria-label]="selectedLesson()?.completed ? 'Aula concluída' : 'Em andamento'">
-              {{ selectedLesson()?.completed ? '✓ Concluído' : '● Em andamento' }}
-            </span>
-          </div>
-          @if (!selectedLesson()?.completed) {
-            <button class="btn-complete" type="button" (click)="markCompleted()">
-              Marcar como concluída
-            </button>
-          }
-        </div>
-      </section>
+            <div class="lesson-meta-bar">
+              <div class="lesson-meta-info">
+                <span class="badge" aria-label="Duração">⏱ {{ selectedLesson()?.duration }}</span>
+                <span class="badge"
+                  [class.badge-completed]="selectedLesson()?.completed"
+                  [attr.aria-label]="selectedLesson()?.completed ? 'Aula concluída' : 'Em andamento'">
+                  {{ selectedLesson()?.completed ? '✓ Concluído' : '● Em andamento' }}
+                </span>
+              </div>
+              @if (!selectedLesson()?.completed) {
+                <button class="btn-complete" type="button" (click)="markCompleted()">
+                  Marcar como concluída
+                </button>
+              }
+            </div>
+          </section>
 
-      <!-- Lesson Details -->
-      <section class="tab-content" aria-label="Sobre a aula">
-        <h2 class="lesson-heading">{{ selectedLesson()?.title }}</h2>
-        <p class="lesson-description">
-          {{ selectedLesson()?.description ?? 'Nesta aula, exploramos conceitos fundamentais adaptados para uma experiência visual em Libras.' }}
-        </p>
+          <!-- Lesson Details -->
+          <section class="tab-content" aria-label="Sobre a aula">
+            <h2 class="lesson-heading">{{ selectedLesson()?.title }}</h2>
+            <p class="lesson-description">
+              {{ selectedLesson()?.description ?? 'Nesta aula, exploramos conceitos fundamentais adaptados para uma experiência visual em Libras.' }}
+            </p>
 
-        <div class="info-cards-grid">
-          <div class="info-card">
-            <span class="info-card-icon" aria-hidden="true">📚</span>
-            <div>
-              <p class="info-card-label">Nível</p>
-              <p class="info-card-value">{{ course()!.level }}</p>
+            <div class="info-cards-grid">
+              <div class="info-card">
+                <span class="info-card-icon" aria-hidden="true">📚</span>
+                <div>
+                  <p class="info-card-label">Nível</p>
+                  <p class="info-card-value">{{ course()!.level }}</p>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="info-card-icon" aria-hidden="true">⏳</span>
+                <div>
+                  <p class="info-card-label">Carga Horária</p>
+                  <p class="info-card-value">{{ course()!.totalWorkload }}</p>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="info-card-icon" aria-hidden="true">🎓</span>
+                <div>
+                  <p class="info-card-label">Categoria</p>
+                  <p class="info-card-value">{{ course()!.category }}</p>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="info-card-icon" aria-hidden="true">🤟</span>
+                <div>
+                  <p class="info-card-label">Acessibilidade</p>
+                  <p class="info-card-value">Suporte em LIBRAS</p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="info-card">
-            <span class="info-card-icon" aria-hidden="true">⏳</span>
-            <div>
-              <p class="info-card-label">Carga Horária</p>
-              <p class="info-card-value">{{ course()!.totalWorkload }}</p>
-            </div>
-          </div>
-          <div class="info-card">
-            <span class="info-card-icon" aria-hidden="true">🎓</span>
-            <div>
-              <p class="info-card-label">Categoria</p>
-              <p class="info-card-value">{{ course()!.category }}</p>
-            </div>
-          </div>
-          <div class="info-card">
-            <span class="info-card-icon" aria-hidden="true">🤟</span>
-            <div>
-              <p class="info-card-label">Acessibilidade</p>
-              <p class="info-card-value">Suporte em LIBRAS</p>
-            </div>
-          </div>
+          </section>
         </div>
-      </section>
+      }
+
+      <!-- Quiz Section -->
+      @if (activeModuleQuiz()) {
+        <section class="quiz-section quiz-entrance" aria-label="Quiz do módulo">
+          <app-quiz
+            [quiz]="activeModuleQuiz()!"
+            (closed)="closeQuiz()">
+          </app-quiz>
+        </section>
+      }
 
     </main>
   </div>

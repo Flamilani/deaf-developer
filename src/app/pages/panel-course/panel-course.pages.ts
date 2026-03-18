@@ -2,12 +2,13 @@ import { Component, signal, computed, inject, OnInit, ChangeDetectionStrategy } 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { COURSES_DATABASE, CourseData, CourseModule, Lesson } from '../../data/courses.data';
+import { QuizComponent } from '../../features/quiz/quiz.component';
 
 type ViewMode = 'intro' | 'lesson';
 
 @Component({
   selector: 'app-panel-course',
-  imports: [RouterLink],
+  imports: [RouterLink, QuizComponent],
   templateUrl: './panel-course.pages.html',
   styleUrl: './panel-course.pages.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +24,16 @@ export class PanelCoursePages implements OnInit {
   viewMode = signal<ViewMode>('intro');
   introTab = signal<'sobre' | 'objetivos' | 'metodologia' | 'modulos'>('sobre');
   videoPlaying = signal(false);
+
+  /** ID of the module whose quiz is currently open (null = no quiz open) */
+  activeQuizModuleId = signal<number | null>(null);
+
+  /** Returns the Quiz for the currently active module, or null */
+  activeModuleQuiz = computed(() => {
+    const id = this.activeQuizModuleId();
+    if (id === null) return null;
+    return this.modules().find(m => m.id === id)?.quiz ?? null;
+  });
 
   /** Sanitized URL safe for iframe src binding */
   safeVideoUrl = computed<SafeResourceUrl | null>(() => {
@@ -88,6 +99,9 @@ export class PanelCoursePages implements OnInit {
   }
 
   selectLesson(lesson: Lesson): void {
+    // Close any open quiz when switching back to a lesson
+    this.activeQuizModuleId.set(null);
+
     // Open the module that contains this lesson
     this.modules.update(ms =>
       ms.map(m => ({
@@ -137,5 +151,13 @@ export class PanelCoursePages implements OnInit {
 
   setIntroTab(tab: 'sobre' | 'objetivos' | 'metodologia' | 'modulos'): void {
     this.introTab.set(tab);
+  }
+
+  openQuiz(moduleId: number): void {
+    this.activeQuizModuleId.set(moduleId);
+  }
+
+  closeQuiz(): void {
+    this.activeQuizModuleId.set(null);
   }
 }
