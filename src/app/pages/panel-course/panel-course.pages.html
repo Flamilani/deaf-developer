@@ -1,0 +1,67 @@
+<div class="course-panel-container">
+  <!-- Main Content: Video and Lesson Info -->
+  <main class="main-content">
+    <header class="course-header">
+      <h1 class="course-title">{{ courseTitle() }}</h1>
+      <div class="lesson-meta">
+        <span class="badge">{{ selectedLesson().duration }}</span>
+        <span class="badge" [class.completed]="selectedLesson().completed">
+          {{ selectedLesson().completed ? 'Concluído' : 'Em andamento' }}
+        </span>
+      </div>
+    </header>
+
+    <div class="video-container">
+      <div class="video-placeholder">
+        <span class="play-icon">▶</span>
+        <p>Vídeo Aula: {{ selectedLesson().title }}</p>
+      </div>
+    </div>
+
+    <section class="lesson-details">
+      <h2>{{ selectedLesson().title }}</h2>
+      <p class="description">
+        Nesta aula, exploramos conceitos fundamentais adaptados para uma experiência visual em Libras.
+      </p>
+    </section>
+  </main>
+
+  <!-- Sidebar: Curriculum -->
+  <aside class="curriculum-sidebar">
+    <div class="sidebar-header">
+      <h2>Conteúdo Programático</h2>
+      <p class="progress-info">4 aulas • 36min</p>
+    </div>
+
+    <div class="modules-list">
+      @for (module of modules(); track module.id) {
+        <div class="module-item" [class.active]="module.isOpen">
+          <button class="module-header" (click)="toggleModule(module)">
+            <span class="chevron" [class.rotated]="module.isOpen">❯</span>
+            <span class="module-title">{{ module.title }}</span>
+          </button>
+          
+          <div class="lessons-list" *ngIf="module.isOpen">
+            @for (lesson of module.lessons; track lesson.id) {
+              <button 
+                class="lesson-item" 
+                [class.selected]="selectedLesson().id === lesson.id"
+                (click)="selectLesson(lesson)"
+              >
+                <div class="lesson-status">
+                  <span class="status-icon" [class.check]="lesson.completed">
+                    {{ lesson.completed ? '✓' : '○' }}
+                  </span>
+                </div>
+                <div class="lesson-info">
+                  <span class="lesson-title">{{ lesson.title }}</span>
+                  <span class="lesson-duration">{{ lesson.duration }}</span>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </aside>
+</div>

@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 interface Course {
   id: number;
@@ -14,7 +15,7 @@ interface Course {
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="p-8 max-w-7xl mx-auto">
       <header class="mb-12">
@@ -65,9 +66,12 @@ interface Course {
                    <div class="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700 flex items-center justify-center text-[10px]">🤘</div>
                    <div class="w-8 h-8 rounded-full border-2 border-slate-900 bg-blue-600 flex items-center justify-center text-[10px]">AD</div>
                 </div>
-                <button class="bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                <a 
+                  [routerLink]="['/painel-curso', course.id]"
+                  class="bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-all no-underline inline-block"
+                >
                   Iniciar Aula
-                </button>
+                </a>
               </div>
             </div>
           </div>
